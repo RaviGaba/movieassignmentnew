@@ -1,10 +1,13 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-import 'package:movieassignmentnew/pages/HomePage.dart';
-import 'utils/custom_progress_dialog.dart';
+import 'package:movieassignmentnew/utils/Constants.dart';
+import 'package:movieassignmentnew/utils/RightToLeftAnimation.dart';
+import 'package:movieassignmentnew/utils/Toast.dart';
+import 'package:movieassignmentnew/utils/custom_progress_dialog.dart';
+
+import 'HomePage.dart';
 
 void main() {
   runApp(MyApp());
@@ -46,7 +49,9 @@ class LoginPageState extends State<MyApp> {
               centerTitle: true, // set the actionbar title to center
               title: Text("Login Page"),
             ),
-            body: loginPageDesign(context)));
+            body: loginPageDesign(context)),
+      debugShowCheckedModeBanner: false,
+    );
   }
 
   loginPageDesign(BuildContext context) {
@@ -163,8 +168,7 @@ class LoginPageState extends State<MyApp> {
       String movieReleasedYear) async {
     final contextMaterial = navigatorKey.currentState.overlay.context;
 
-    final response = await http.get(
-        "http://www.omdbapi.com/?apikey=70c164c4&t=${movieValue}&y=${movieReleasedYear}");
+    final response = await http.get("${API_URL}t=${movieValue}&y=${movieReleasedYear}");
     print(response.body);
     final responseJson = json.decode(response.body);
 
@@ -185,19 +189,13 @@ class LoginPageState extends State<MyApp> {
         movieName.compareTo(movieNameControler.text.trim().toLowerCase()) ==
             0) {
       showToast("Login Success");
-      Navigator.of(contextMaterial).pushNamed('/home_page');
+      Navigator.of(contextMaterial).push(FadeRouteBuilder(page:Homepage())); // Navigate to page with slide right to left animation
     } else {
       showToast("Movie Name & Releasing Year is not Correct");
     }
   }
 
-  void showToast(String message) {
-    Fluttertoast.showToast(
-        msg: message,
-        fontSize: 16.0,
-        gravity: ToastGravity.BOTTOM,
-        textColor: Colors.white,
-        toastLength: Toast.LENGTH_SHORT,
-        timeInSecForIosWeb: 3);
-  }
 }
+
+
+
