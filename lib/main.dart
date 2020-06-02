@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:movieassignmentnew/pages/HomePage.dart';
 import 'utils/custom_progress_dialog.dart';
 
 void main() {
@@ -33,6 +34,12 @@ class LoginPageState extends State<MyApp> {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
+
+        // defining HomePage route
+        routes: <String, WidgetBuilder>{
+          '/home_page': (BuildContext context) => new Homepage()
+        },
+
         home: Scaffold(
             resizeToAvoidBottomPadding: false,
             appBar: AppBar(
@@ -177,7 +184,20 @@ class LoginPageState extends State<MyApp> {
     if (responseData.compareTo("True") == 0 &&
         movieName.compareTo(movieNameControler.text.trim().toLowerCase()) ==
             0) {
-      print("yes all ok");
+      showToast("Login Success");
+      Navigator.of(contextMaterial).pushNamed('/home_page');
+    } else {
+      showToast("Movie Name & Releasing Year is not Correct");
     }
+  }
+
+  void showToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        fontSize: 16.0,
+        gravity: ToastGravity.BOTTOM,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT,
+        timeInSecForIosWeb: 3);
   }
 }
