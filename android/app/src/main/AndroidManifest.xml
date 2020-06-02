@@ -7,8 +7,8 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="movieassignmentnew"
-        android:icon="@mipmap/ic_launcher">
+        android:label="movie assignment"
+        android:icon="@mipmap/movie_icon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
