@@ -2,12 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:movieassignmentnew/pages/HomePage.dart';
 import 'package:movieassignmentnew/utils/Constants.dart';
 import 'package:movieassignmentnew/utils/RightToLeftAnimation.dart';
 import 'package:movieassignmentnew/utils/Toast.dart';
 import 'package:movieassignmentnew/utils/custom_progress_dialog.dart';
-
-import 'HomePage.dart';
 
 void main() {
   runApp(MyApp());
