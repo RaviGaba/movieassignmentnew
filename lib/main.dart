@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 import 'utils/custom_progress_dialog.dart';
 
 void main() {
@@ -29,7 +33,6 @@ class LoginPageState extends State<MyApp> {
           primarySwatch: Colors.blue,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-
         home: Scaffold(
             resizeToAvoidBottomPadding: false,
             appBar: AppBar(
@@ -39,7 +42,6 @@ class LoginPageState extends State<MyApp> {
             body: loginPageDesign(context)));
   }
 
-
   loginPageDesign(BuildContext context) {
     TextStyle textStyle = new TextStyle(fontSize: 20.0, color: Colors.black);
 
@@ -48,7 +50,7 @@ class LoginPageState extends State<MyApp> {
       controller: movieNameControler,
       maxLines: 1,
       style: textStyle,
-      onChanged: (text){
+      onChanged: (text) {
         setState(() {
           isMovieNameValid = true;
         });
@@ -59,9 +61,8 @@ class LoginPageState extends State<MyApp> {
           errorText: !isMovieNameValid ? "Movie name can not be blank" : null,
           contentPadding: EdgeInsets.all(15.0),
           border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+              OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
     );
-
 
     // movie release year text field
     final movieReleasedYearTextField = TextField(
@@ -69,7 +70,7 @@ class LoginPageState extends State<MyApp> {
       maxLines: 1,
       style: textStyle,
       keyboardType: TextInputType.number,
-      onChanged: (text){
+      onChanged: (text) {
         setState(() {
           isMovieYearValid = true;
         });
@@ -80,7 +81,7 @@ class LoginPageState extends State<MyApp> {
           hintText: "Enter Released Year",
           contentPadding: EdgeInsets.all(15.0),
           border:
-          OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
+              OutlineInputBorder(borderRadius: BorderRadius.circular(10.0))),
     );
 
     final submitButton = RaisedButton(
@@ -88,7 +89,7 @@ class LoginPageState extends State<MyApp> {
       color: Colors.blue,
       textColor: Colors.white,
       padding: EdgeInsets.fromLTRB(50, 15, 50, 15),
-      onPressed: (){
+      onPressed: () {
         if (movieNameControler.text.trim().length == 0) {
           // check if movie name is blank
           setState(() {
@@ -111,40 +112,72 @@ class LoginPageState extends State<MyApp> {
               barrierDismissible: false,
               context: contextMaterial,
               builder: (BuildContext context) => dialog);
+
+          // network call
+          fetchMovieData(
+              context, movieNameControler.text, movieYearController.text);
         }
       },
     );
 
     return Container(
         child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              children: <Widget>[
-                SizedBox(
-                  height: 25.0,
-                ),
-                SizedBox(
-                  child: Image.asset('assets/images/movie_icon.png'),
-                  height: 120.0,
-                  width: 120.0,
-                ),
-                SizedBox(
-                  height: 50.0,
-                ),
-                movieNameTextField,
-                SizedBox(
-                  height: 35.0,
-                ),
-                movieReleasedYearTextField,
-                SizedBox(
-                  height: 50.0,
-                ),
-                submitButton
-              ],
+      child: Padding(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          children: <Widget>[
+            SizedBox(
+              height: 25.0,
             ),
-          ),
-        ));
+            SizedBox(
+              child: Image.asset('assets/images/movie_icon.png'),
+              height: 120.0,
+              width: 120.0,
+            ),
+            SizedBox(
+              height: 50.0,
+            ),
+            movieNameTextField,
+            SizedBox(
+              height: 35.0,
+            ),
+            movieReleasedYearTextField,
+            SizedBox(
+              height: 50.0,
+            ),
+            submitButton
+          ],
+        ),
+      ),
+    ));
   }
 
+  Future fetchMovieData(BuildContext contextNew, String movieValue,
+      String movieReleasedYear) async {
+    final contextMaterial = navigatorKey.currentState.overlay.context;
+
+    final response = await http.get(
+        "http://www.omdbapi.com/?apikey=70c164c4&t=${movieValue}&y=${movieReleasedYear}");
+    print(response.body);
+    final responseJson = json.decode(response.body);
+
+    String responseData = responseJson['Response'] as String;
+    String movieName = responseJson['Title'] as String;
+
+    // convert movie name coming from api to lower case to compare with name entered by user, because sometime entered name is sub part of movie full name
+    responseData.compareTo("True") == 0
+        ? movieName = movieName.toLowerCase()
+        : movieName = null;
+
+    Navigator.pop(contextMaterial); // remove progress bar
+
+    FocusScope.of(context)
+        .requestFocus(FocusNode()); // hide keyboard from screen forcefully
+
+    if (responseData.compareTo("True") == 0 &&
+        movieName.compareTo(movieNameControler.text.trim().toLowerCase()) ==
+            0) {
+      print("yes all ok");
+    }
+  }
 }
